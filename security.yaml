@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: "oms-secret"
+type: Opaque
+stringData:
+  consoleadminpassword: "${CONSOLEADMINPASSWORD}"
+  consolenonadminpassword: "${CONSOLENONADMINPASSWORD}"
+  dbpassword: "${DBPASSWORD}"
+  tlskeystorepassword: "${TLSKEYSTOREPASSWORD}"
