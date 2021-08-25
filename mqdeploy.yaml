@@ -1,0 +1,117 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mq-web
+spec:
+  selector:
+    app: mq
+  type: ClusterIP
+  ports:
+  - protocol: TCP
+    port: 9443
+    targetPort: 9443
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mq-data
+spec:
+  selector:
+    app: mq
+  type: ClusterIP
+  ports:
+  - protocol: TCP
+    port: 1414
+    targetPort: 1414
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mq-data-lb
+spec:
+  selector:
+    app: mq
+  type: LoadBalancer
+  ports:
+  - protocol: TCP
+    port: 1414
+    targetPort: 1414
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mq-web-lb
+spec:
+  selector:
+    app: mq
+  type: LoadBalancer
+  ports:
+  - protocol: TCP
+    port: 9443
+    targetPort: 9443
+---
+apiVersion: v1
+kind: Route
+metadata:
+  name: mqweb
+spec:
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: passthrough
+  to:
+    kind: Service
+    name: mq-web
+  wildcardPolicy: None
+---
+apiVersion: v1 
+kind: Secret 
+metadata:
+  name: mq-secret 
+type: Opaque
+data:
+ adminPassword: cGFzc3cwcmQ=
+ appPassword: cGFzc3cwcmQ=
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mq
+spec:
+  selector:
+    matchLabels:
+      app: mq
+  serviceName: "mq"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mq
+    spec:
+      serviceAccount: mq
+      containers:
+      - name: mq
+        securityContext:
+          privileged: true
+        image: ibmcom/mq
+        env:
+        - name: LICENSE 
+          value: accept
+        - name: MQ_QMGR_NAME
+          value: qmgr
+        ports:
+        - containerPort: 1414
+          name: mq
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+        - mountPath: /var/mqm
+          name: mqvol
+  volumeClaimTemplates:
+  - metadata:
+      name: mqvol
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 20Gi
+      storageClassName: ibmc-block-gold
