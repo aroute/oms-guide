@@ -53,11 +53,11 @@ global:
   database:
     ## Database server IP/host
     ##
-    serverName: '150.238.78.66'
+    serverName: '${DB2_IP}'
 
     ## Database server port
     ##
-    port: 30251
+    port: ${DB2_PORT}
 
     ## Database name or catalog name
     ##
