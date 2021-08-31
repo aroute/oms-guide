@@ -94,7 +94,17 @@ global:
 
   ## Array of customer overrides properties as key=value
   ##
-  customerOverrides: []
+  customerOverrides:
+  - yfs.oms_provider_url=file:///opt/ssfs
+  - yfs.oms_qcf=qcf
+  - yfs.yfs.agent.override.icf=com.sun.jndi.fscontext.RefFSContextFactory
+  - yfs.yfs.agent.override.providerurl=file:///opt/ssfs
+  - yfs.yfs.agent.override.qcf=qcf
+  - yfs.yfs.flow.override.icf=com.sun.jndi.fscontext.RefFSContextFactory
+  - yfs.yfs.flow.override.providerurl=file:///opt/ssfs
+  - yfs.yfs.flow.override.qcf=qcf
+  - yfs.sci.queuebasedsecurity.userid=mqm
+  - yfs.sci.queuebasedsecurity.password=mqm
 
   ## SSL Configurations to specify the trust store and key store for OMS containers. By default OMS containers to trust the java CA certs
   ##
@@ -173,7 +183,7 @@ global:
   mq:
     ## Name of the mq binding file config map
     ##
-    bindingConfigName: ''
+    bindingConfigName: 'oms-binding'
 
     ## Path where the binding file will be mounted. Defaults to '/opt/ssfs/.bindings'
     ##
