@@ -8,3 +8,78 @@ stringData:
   consolenonadminpassword: "${CONSOLENONADMINPASSWORD}"
   dbpassword: "${DBPASSWORD}"
   tlskeystorepassword: "${TLSKEYSTOREPASSWORD}"
+
+---  
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: oms-sa
+
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: oms-role-oms
+  namespace: oms
+rules:
+- apiGroups: [""]
+  resources: [""]
+  verbs: ["create", "get", "list", "update", "delete", "watch", "patch"]
+
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: oms-rolebinding-oms
+  namespace: oms
+subjects:
+- kind: ServiceAccount
+  name: oms-sa
+  namespace: oms
+roleRef:
+  kind: Role
+  name: oms-role-oms
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: security.openshift.io/v1
+kind: SecurityContextConstraints
+metadata:
+  annotations:
+  name: ibm-oms-scc
+allowHostDirVolumePlugin: false
+allowHostIPC: false
+allowHostNetwork: false
+allowHostPID: false
+allowHostPorts: false
+allowPrivilegedContainer: false
+allowedCapabilities: []
+allowedFlexVolumes: []
+defaultAddCapabilities: []
+fsGroup:
+  type: MustRunAs
+  ranges:
+    - max: 65535
+      min: 1
+readOnlyRootFilesystem: false
+requiredDropCapabilities:
+  - ALL
+runAsUser:
+  type: MustRunAsNonRoot
+seccompProfiles:
+  - docker/default
+seLinuxContext:
+  type: RunAsAny
+supplementalGroups:
+  type: MustRunAs
+  ranges:
+    - max: 65535
+      min: 1
+volumes:
+  - configMap
+  - downwardAPI
+  - emptyDir
+  - persistentVolumeClaim
+  - projected
+  - secret
+priority: 0
